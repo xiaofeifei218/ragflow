@@ -2,20 +2,100 @@
 
 本目录包含通过宿主机nginx反向代理启动RAGFlow MCP服务器(HTTPS)所需的所有配置文件。
 
+## 🔀 部署模式选择
+
+RAGFlow MCP服务器支持两种部署模式：
+
+### 模式1: Docker模式 (推荐)
+
+**适用场景**: MCP服务器随RAGFlow Docker容器一起启动
+
+- ✅ **推荐使用** - 与RAGFlow集成,统一管理
+- MCP服务器在Docker容器内运行
+- 通过端口映射暴露到宿主机
+- 配置文件: `docker/docker-compose.yml`
+
+**快速开始**:
+
+```bash
+# 1. 修复Docker配置
+./fix_docker_mcp.sh
+
+# 2. 重启Docker容器
+cd docker && docker compose down && docker compose up -d
+
+# 3. 配置nginx
+sudo cp nginx_mcp_standalone.conf /etc/nginx/sites-available/mcp-ragflow
+sudo ln -s /etc/nginx/sites-available/mcp-ragflow /etc/nginx/sites-enabled/
+sudo nginx -t && sudo systemctl reload nginx
+
+# 4. 测试
+./test_docker_mcp.sh
+```
+
+**详细文档**: 👉 **[DOCKER_MCP_SETUP.md](./DOCKER_MCP_SETUP.md)**
+
+### 模式2: 独立模式
+
+**适用场景**: MCP服务器独立于RAGFlow Docker运行
+
+- MCP服务器直接在宿主机运行
+- 需要手动管理MCP进程
+- 配置文件: `start_mcp_server.sh`
+
+**快速开始**:
+
+```bash
+# 1. 设置API密钥
+export RAGFLOW_API_KEY="ragflow-your-actual-api-key"
+
+# 2. 启动MCP服务器
+./start_mcp_server.sh
+
+# 3. 配置nginx (同Docker模式)
+
+# 4. 测试
+./test_mcp_server.sh
+```
+
+**详细文档**: 👉 **[MCP_HTTPS_DEPLOYMENT.md](./MCP_HTTPS_DEPLOYMENT.md)**
+
+---
+
 ## 📁 配置文件清单
 
-| 文件名 | 说明 | 用途 |
+### Docker模式文件
+
+| 文件名 | 说明 | 模式 |
 |--------|------|------|
-| `start_mcp_server.sh` | MCP服务器启动脚本 | 启动MCP服务器(self-host模式) |
-| `nginx_mcp_https.conf` | Nginx配置文件 | HTTPS反向代理配置 |
-| `install_mcp_https.sh` | 自动部署脚本 | 一键安装和配置 |
-| `test_mcp_server.sh` | 测试脚本 | 验证部署是否成功 |
-| `ragflow-mcp.service` | Systemd服务模板 | 系统服务配置 |
-| `MCP_HTTPS_DEPLOYMENT.md` | 详细部署文档 | 完整的部署和故障排查指南 |
+| `fix_docker_mcp.sh` | Docker配置自动修复脚本 | Docker |
+| `test_docker_mcp.sh` | Docker模式测试脚本 | Docker |
+| `DOCKER_MCP_SETUP.md` | Docker模式详细文档 | Docker |
+
+### 独立模式文件
+
+| 文件名 | 说明 | 模式 |
+|--------|------|------|
+| `start_mcp_server.sh` | MCP服务器启动脚本 | 独立 |
+| `install_mcp_https.sh` | 自动部署脚本 | 独立 |
+| `test_mcp_server.sh` | 独立模式测试脚本 | 独立 |
+| `ragflow-mcp.service` | Systemd服务模板 | 独立 |
+| `MCP_HTTPS_DEPLOYMENT.md` | 独立模式详细文档 | 独立 |
+
+### 通用文件
+
+| 文件名 | 说明 | 模式 |
+|--------|------|------|
+| `nginx_mcp_standalone.conf` | ✅ 推荐nginx配置 | 通用 |
+| `nginx_mcp_simple.conf` | 简化nginx配置 | 通用 |
+| `nginx_mcp_https.conf` | 完整nginx配置 | 通用 |
+| `MCP_SETUP_README.md` | 快速开始指南(本文档) | 通用 |
 
 ## 🚀 快速开始
 
-### 方法一:自动安装(推荐)
+> **注意**: 以下是**独立模式**的快速开始。如果你的MCP是在Docker中运行,请参考上面的**Docker模式**说明。
+
+### 独立模式 - 方法一:自动安装(推荐)
 
 ```bash
 # 1. 设置API密钥
@@ -25,7 +105,7 @@ export RAGFLOW_API_KEY="ragflow-your-actual-api-key"
 ./install_mcp_https.sh
 ```
 
-### 方法二:手动安装
+### 独立模式 - 方法二:手动安装
 
 ```bash
 # 1. 设置API密钥
