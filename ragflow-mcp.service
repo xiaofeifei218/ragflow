@@ -1,0 +1,37 @@
+[Unit]
+Description=RAGFlow MCP Server (Self-host mode with HTTPS)
+After=network.target
+Documentation=https://github.com/infiniflow/ragflow
+
+[Service]
+Type=simple
+User=xiaofeifei
+Group=xiaofeifei
+WorkingDirectory=/home/user/ragflow
+
+# Environment variables
+Environment="RAGFLOW_API_KEY=ragflow-xxxxx"
+Environment="PYTHONPATH=/home/user/ragflow"
+
+# Start command
+ExecStart=/home/user/ragflow/start_mcp_server.sh
+
+# Restart policy
+Restart=on-failure
+RestartSec=10
+StartLimitInterval=60
+StartLimitBurst=3
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=ragflow-mcp
+
+# Security hardening (optional)
+# ProtectSystem=strict
+# ProtectHome=read-only
+# NoNewPrivileges=true
+# PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
